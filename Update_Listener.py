@@ -5,7 +5,7 @@ import os
 import json
 import sys
 from tqdm import tqdm   
-
+import platform
 
 def log(message):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -23,10 +23,10 @@ def update_git_repo():
             "cd backend",
         ]
         
-        # if platform.system() == "Windows":
-        #     commands.append("start.bat")
-        # else:
-        #     commands.append("start.sh")
+        if platform.system() == "Windows":
+            commands.append("start.bat")
+        else:
+            commands.append("start.sh")
         
         for command in commands:
             log(f"執行命令: {command}")
@@ -128,6 +128,7 @@ def main():
             if update:
                 if update_git_repo():
                     log("更新成功完成")
+                    sys.exit(0)
                 else:
                     log("更新失敗")
                     sys.exit(1)
