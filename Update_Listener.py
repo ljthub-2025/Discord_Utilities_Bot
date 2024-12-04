@@ -67,14 +67,30 @@ def load_env():
         return {}
     
 def write_env(key, value):
-    with open('.env', 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    with open('.env', 'w', encoding='utf-8') as f:
-        for line in lines:
-            if line.startswith(key):
-                f.write(f"{key}={value}\n")
-            else:
-                f.write(line)
+    try:
+        # 讀取現有的環境變量
+        env_vars = {}
+        if os.path.exists('.env'):
+            with open('.env', 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        try:
+                            k, v = line.split('=', 1)
+                            env_vars[k.strip()] = v.strip()
+                        except ValueError:
+                            continue
+
+        # 更新或添加新的鍵值對
+        env_vars[key] = value
+
+        # 重寫整個文件
+        with open('.env', 'w', encoding='utf-8') as f:
+            for k, v in env_vars.items():
+                f.write(f"{k}={v}\n")
+
+    except Exception as e:
+        log(f"寫入 .env 文件時發生錯誤: {str(e)}")
 
 def main(): 
     load_env()
@@ -90,8 +106,8 @@ def main():
             latest_commit = response.json()[0]
             latest_commit_timestamp = datetime.strptime(latest_commit['timestamp'], '%Y-%m-%dT%H:%M:%SZ')
             
-            env_data = load_env()
-            old_timestamp = env_data.get('LATEST_COMMIT_TIMESTAMP')
+            # 直接從環境變量獲取舊的時間戳，而不是重新載入文件
+            old_timestamp = os.getenv('LATEST_COMMIT_TIMESTAMP')
             
             if old_timestamp:
                 old_commit_timestamp = datetime.strptime(old_timestamp, '%Y-%m-%dT%H:%M:%SZ')
@@ -102,7 +118,11 @@ def main():
                     log("沒有新的 commit")
             else:
                 log("首次運行，記錄當前 commit")
+                update = False  # 確保首次運行不會觸發更新
             
+            # 更新環境變量和文件
+            print(latest_commit_timestamp)
+            os.environ['LATEST_COMMIT_TIMESTAMP'] = latest_commit_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
             write_env('LATEST_COMMIT_TIMESTAMP', latest_commit_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"))
                 
             if update:
