@@ -7,4 +7,4 @@ endif
 yarn install
 
 @REM start the server
-yarn start
+yarn dev

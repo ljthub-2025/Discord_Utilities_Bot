@@ -3,3 +3,5 @@
 Update_Listener.log
 Update_Listener.log
 .env
+/backend/node_modules
+backend/package-lock.json
