@@ -9,4 +9,4 @@ fi
 yarn install
 
 # Start the server
-yarn start
+yarn dev
