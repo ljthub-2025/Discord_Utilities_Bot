@@ -1,37 +1,27 @@
 #!/bin/bash
 
-# 檢查是否已經運行
-if pgrep -f "Update_Listener.py" > /dev/null; then
-    echo "Update Listener 已在運行中"
-    exit 1
+# Print start message
+echo "Starting update process..."
+
+# Fetch the latest changes from remote
+git fetch origin main
+
+# Check if there are any changes
+LOCAL=$(git rev-parse HEAD)
+REMOTE=$(git rev-parse origin/main)
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "Already up to date!"
+    exit 0
 fi
 
-# Git 操作
-echo "開始更新代碼..."
-git fetch
-git stash --include-untracked
-if ! git pull; then
-    echo "Git pull 失敗"
-    exit 1
-fi
-git stash pop || true
+# Stash any local changes
+git stash
 
-# 安裝依賴
-echo "更新 Python 依賴..."
-if ! pip install -r requirements.txt; then
-    echo "pip install 失敗"
-    exit 1
-fi
+# Pull the latest changes
+git pull origin main
 
-# 啟動 Update Listener
-echo "啟動 Update Listener..."
-nohup python Update_Listener.py > ".log" 2>&1 &
+# Apply stashed changes if any
+git stash pop 2>/dev/null || true
 
-# 確認程序已啟動
-sleep 2
-if pgrep -f "Update_Listener.py" > /dev/null; then
-    echo "Update Listener 已成功在背景啟動"
-else
-    echo "Update Listener 啟動失敗"
-    exit 1
-fi
+echo "Update completed successfully!"
