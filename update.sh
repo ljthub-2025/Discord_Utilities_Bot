@@ -25,7 +25,7 @@ fi
 
 # 啟動 Update Listener
 echo "啟動 Update Listener..."
-nohup python Update_Listener.py > "Update_Listener_$(date +%Y%m%d_%H%M%S).log" 2>&1 &
+nohup python Update_Listener.py > "Update_Listener.log" 2>&1 &
 
 # 確認程序已啟動
 sleep 2
