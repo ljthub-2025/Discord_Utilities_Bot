@@ -16,30 +16,26 @@ def log(message):
     
 def update_git_repo():
     try:
-        commands = [
-            "git stash",
-            "git pull",
-            "git stash pop",
-            "pip install -r requirements.txt",
-            "python Update_Listener.py",
-            "cd backend",
-        ]
+        # Determine the script to run based on the operating system
+        script = "update.bat" if platform.system() == "Windows" else "update.sh"
         
+        # Log the script execution
+        log(f"執行腳本: {script}")
+        
+        # Execute the script
+        result = os.system(script)
+        if result != 0:
+            log(f"腳本執行失敗: {script}")
+            return False
+
+        # 重啟服務
         if platform.system() == "Windows":
-            commands.append("start.bat")
+            os.chdir("backend")
+            os.system("start.bat")
         else:
-            commands.append("start.sh")
-        
-        for command in commands:
-            log(f"執行命令: {command}")
-            if command == "python Update_Listener.py":
-                python_path = sys.executable
-                os.execv(python_path, [python_path, "Update_Listener.py"])
-            else:
-                result = os.system(command)
-                if result != 0:
-                    log(f"命令執行失敗: {command}")
-                    return False
+            os.chdir("backend")
+            os.system("start.sh")
+            
         return True
     except Exception as e:
         log(f"更新過程發生錯誤: {str(e)}")
