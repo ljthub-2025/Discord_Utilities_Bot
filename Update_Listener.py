@@ -121,7 +121,7 @@ def main():
                 update = False  # 確保首次運行不會觸發更新
             
             # 更新環境變量和文件
-            print(latest_commit_timestamp)
+            # print(latest_commit_timestamp)
             os.environ['LATEST_COMMIT_TIMESTAMP'] = latest_commit_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
             write_env('LATEST_COMMIT_TIMESTAMP', latest_commit_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"))
                 
