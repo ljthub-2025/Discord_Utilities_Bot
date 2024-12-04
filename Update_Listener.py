@@ -17,7 +17,9 @@ def log(message):
 def update_git_repo():
     try:
         commands = [
+            "git stash",
             "git pull",
+            "git stash pop",
             "pip install -r requirements.txt",
             "python Update_Listener.py",
             "cd backend",
