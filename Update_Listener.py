@@ -19,8 +19,14 @@ def update_git_repo():
         commands = [
             "git pull",
             "pip install -r requirements.txt",
-            "python Update_Listener.py"
+            "python Update_Listener.py",
+            "cd backend",
         ]
+        
+        # if platform.system() == "Windows":
+        #     commands.append("start.bat")
+        # else:
+        #     commands.append("start.sh")
         
         for command in commands:
             log(f"執行命令: {command}")
@@ -41,6 +47,10 @@ def load_env():
     try:
         if not os.path.exists('.env'):
             log("找不到 .env 文件，將創建新文件")
+            token = input("請輸入 GitHub API Token: ")
+            with open('.env', 'w') as f:
+                f.write(f'GITHUB_API_TOKEN={token}')
+            os.environ['GITHUB_API_TOKEN'] = token
             return {}
             
         env_data = {}
@@ -55,6 +65,16 @@ def load_env():
     except Exception as e:
         log(f"讀取 .env 文件時發生錯誤: {str(e)}")
         return {}
+    
+def write_env(key, value):
+    with open('.env', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    with open('.env', 'w', encoding='utf-8') as f:
+        for line in lines:
+            if line.startswith(key):
+                f.write(f"{key}={value}\n")
+            else:
+                f.write(line)
 
 def main(): 
     load_env()
@@ -83,8 +103,7 @@ def main():
             else:
                 log("首次運行，記錄當前 commit")
             
-            with open('.env', 'w') as f:
-                f.write(f'LATEST_COMMIT_TIMESTAMP={latest_commit_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+            write_env('LATEST_COMMIT_TIMESTAMP', latest_commit_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"))
                 
             if update:
                 if update_git_repo():
