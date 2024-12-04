@@ -28,15 +28,30 @@ def update_git_repo():
             log(f"腳本執行失敗: {script}")
             return False
 
-        # 重啟服務
-        if platform.system() == "Windows":
+        # 保存當前目錄
+        current_dir = os.getcwd()
+        
+        try:
+            # 切換到 backend 目錄
             os.chdir("backend")
-            os.system("start.bat")
-        else:
-            os.chdir("backend")
-            os.system("start.sh")
+            
+            if platform.system() == "Windows":
+                result = os.system("start.bat")
+            else:
+                # 確保 start.sh 有執行權限
+                os.system("chmod +x start.sh")
+                result = os.system("./start.sh")
+                
+            if result != 0:
+                log("啟動服務失敗")
+                return False
+                
+        finally:
+            # 確保切換回原來的目錄
+            os.chdir(current_dir)
             
         return True
+        
     except Exception as e:
         log(f"更新過程發生錯誤: {str(e)}")
         return False
