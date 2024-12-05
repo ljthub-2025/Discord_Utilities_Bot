@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+require('./utils/firebase.js');
 
 const allGatewayIntents = Object.values(GatewayIntentBits).reduce((acc, p) => acc | p, 0);
 const client = new Client({ intents: allGatewayIntents });
