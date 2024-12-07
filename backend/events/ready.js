@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const { setGuild } = require('../utils/realtime_database.js');
+const { updateGuild } = require('../utils/realtime_database.js');
 
 
 module.exports = {
@@ -10,7 +10,8 @@ module.exports = {
 
 		for(const guild of client.guilds.cache.values()){
 			console.log(`${guild.name} has been connected`);
-			await setGuild(guild);
+			await updateGuild(guild);
+			
 		}
 
 	},

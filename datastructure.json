@@ -17,7 +17,9 @@
             "voice_start_time":"user_1_voice_start_time",
             "voice_end_time":"user_1_voice_end_time",
             "xp":"user_1_experience",
-            "level":"user_1_level"
+            "level":"user_1_level",
+            "current_channel":"user_1_current_channel",
+            "voice_duration":"user_1_voice_duration"
           }
         },
         "settings":{

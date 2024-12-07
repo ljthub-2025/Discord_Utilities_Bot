@@ -40,3 +40,11 @@ for (const file of eventFiles) {
 }
 
 client.login(token);
+
+client.on('error', error => {
+	console.error('Discord client error:', error);
+});
+
+process.on('unhandledRejection', error => {
+	console.error('Unhandled promise rejection:', error);
+});
