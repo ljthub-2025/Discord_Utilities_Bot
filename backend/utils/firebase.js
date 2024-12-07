@@ -8,10 +8,15 @@ var admin = require("firebase-admin");
 const serviceAccount = require('../config.json');
 
 // Initialize Firebase
-app = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: serviceAccount.databaseURL
-  });
+try {
+    app = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: serviceAccount.databaseURL
+    });
+} catch (error) {
+    console.error('Firebase 初始化失敗:', error);
+    process.exit(1);
+}
 const db = admin.database();
 module.exports = { app, db };
 

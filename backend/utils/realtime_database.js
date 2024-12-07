@@ -107,7 +107,7 @@ const updateVoiceState = async (oldState, newState) => {
         const totalTime = await getTotalTime(oldUserRef);
         console.log(`${oldState.member.displayName} 離開頻道 ${oldChannelId} 總時間 ${totalTime}`);
         await update(oldUserRef, getVoiceStateUpdate('leave', null));
-        await addXpByVoiceDuration(oldUserRef, totalTime);
+        await addXpByVoiceDuration(oldUserRef, totalTime, oldState.client);
     } else if (oldChannelId && newChannelId) {
         const isServerChange = oldState.guild.id !== newState.guild.id;
         const isChannelChange = oldChannelId !== newChannelId;
@@ -116,13 +116,13 @@ const updateVoiceState = async (oldState, newState) => {
             console.log(`${oldState.member.displayName} 跨伺服器轉移到 ${newChannelId} 總時間 ${totalTime}`);
             await update(oldUserRef, getVoiceStateUpdate('leave', null));
             await update(newUserRef, getVoiceStateUpdate('enter', newChannelId));
-            await addXpByVoiceDuration(oldUserRef, totalTime);
+            await addXpByVoiceDuration(oldUserRef, totalTime, oldState.client);
             
         } else if (isChannelChange) {
             console.log(`${oldState.member.displayName} 同伺服器內轉移到 ${newChannelId} 總時間 ${totalTime}`);
             await update(oldUserRef, getVoiceStateUpdate('leave', null));
             await update(newUserRef, getVoiceStateUpdate('transfer', newChannelId));
-            await addXpByVoiceDuration(oldUserRef, totalTime);
+            await addXpByVoiceDuration(oldUserRef, totalTime, oldState.client);
         }
         
     }

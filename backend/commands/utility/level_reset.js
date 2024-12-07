@@ -35,7 +35,7 @@ module.exports = {
         });
 
         const collector = resetConfirmation.createMessageComponentCollector({
-            time: 15000
+            time: 150000
         });
 
         collector.on('collect', async i => {
@@ -43,18 +43,22 @@ module.exports = {
                 return i.reply({ content: '你不能使用這個按鈕！', ephemeral: true });
             }
 
-            if (i.customId === 'confirm_reset') {
-                console.log(`${interaction.user.tag} 確認重置伺服器 ${interaction.guild.id} 的等級`);
-                try {
+            try {
+                if (i.customId === 'confirm_reset') {
+                    await i.deferUpdate();
+                    await i.editReply({ content: '⏳ 正在重置等級中...', components: [] });
+                    console.log(`${interaction.user.tag} 確認重置伺服器 ${interaction.guild.id} 的等級`);
                     await resetXp(interaction.guild.id);
-                    await i.update({ content: '✅ 等級已重置！', components: [] });
-                } catch (error) {
-                    console.error('重置等級時發生錯誤:', error);
-                    await i.update({ content: '❌ 重置等級時發生錯誤！', components: [] });
+                    await i.editReply({ content: '✅ 等級已重置！', components: [] });
+                } else if (i.customId === 'cancel_reset') {
+                    await i.deferUpdate();
+                    await i.editReply({ content: '❌ 已取消重置等級', components: [] });
+                    console.log(`${interaction.user.tag} 取消重置操作`);
                 }
-            } else if (i.customId === 'cancel_reset') {
-                console.log(`${interaction.user.tag} 取消重置操作`);
-                await i.update({ content: '❌ 已取消重置等級', components: [] });
+            } catch (error) {
+                console.error('處理互動時發生錯誤:', error);
+                if (!i.deferred) await i.deferUpdate();
+                await i.editReply({ content: '❌ 操作執行時發生錯誤！', components: [] });
             }
         });
 

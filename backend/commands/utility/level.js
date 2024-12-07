@@ -15,7 +15,7 @@ module.exports = {
         const xp = await getUserXP(guildId, userId);
         
         // 創建進度條
-        const progress = Math.floor((xp / requiredXP) * 10);
+        const progress = Math.min(Math.floor((xp / requiredXP) * 10), 10);
         const progressBar = '▰'.repeat(progress) + '▱'.repeat(10 - progress);
         
         const embed = {
