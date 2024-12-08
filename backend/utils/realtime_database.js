@@ -1,7 +1,7 @@
 const { ref, get, onValue, set, update } = require("firebase/database");
 const { db } = require('./firebase.js');
 const { db_root } = require('../config.json');
-const { VoiceState } = require("discord.js");
+const { VoiceState, EmbedBuilder } = require("discord.js");
 const { addXpByVoiceDuration } = require('./xp.js');
 
 
@@ -96,33 +96,42 @@ const updateVoiceState = async (oldState, newState) => {
     const oldChannelId = oldState.channel?.id || null;
     const newChannelId = newState.channel?.id || null;
     
-    const getUserRef = (state) => ref(db, `${db_root}/guilds/${state.guild.id}/users/${state.member.id}`);
+    const getUserRef = (state) => {
+        const path = `${db_root}/guilds/${state.guild.id}/users/${state.member.id}`;
+        return ref(db, path.toString());
+    };
+    
     const oldUserRef = getUserRef(oldState);
     const newUserRef = getUserRef(newState);
 
     if (!oldChannelId && newChannelId) {
         console.log(`${newState.member.displayName} 進入新頻道 ${newChannelId}`);
         await update(newUserRef, getVoiceStateUpdate('enter', newChannelId));
+       await sendVoiceStateEmbed(newState.guild, newState.member, 'enter', newState.channel.name);
     } else if (oldChannelId && !newChannelId) {
         const totalTime = await getTotalTime(oldUserRef);
         console.log(`${oldState.member.displayName} 離開頻道 ${oldChannelId} 總時間 ${totalTime}`);
         await update(oldUserRef, getVoiceStateUpdate('leave', null));
         await addXpByVoiceDuration(oldUserRef, totalTime, oldState.client);
+        await sendVoiceStateEmbed(oldState.guild, oldState.member, 'leave', oldState.channel.name, totalTime);
     } else if (oldChannelId && newChannelId) {
         const isServerChange = oldState.guild.id !== newState.guild.id;
         const isChannelChange = oldChannelId !== newChannelId;
+        const totalTime = await getTotalTime(oldUserRef);
         
         if (isServerChange) {
             console.log(`${oldState.member.displayName} 跨伺服器轉移到 ${newChannelId} 總時間 ${totalTime}`);
             await update(oldUserRef, getVoiceStateUpdate('leave', null));
             await update(newUserRef, getVoiceStateUpdate('enter', newChannelId));
             await addXpByVoiceDuration(oldUserRef, totalTime, oldState.client);
+            await sendVoiceStateEmbed(newState.guild, newState.member, 'enter', newState.channel.name);
             
         } else if (isChannelChange) {
             console.log(`${oldState.member.displayName} 同伺服器內轉移到 ${newChannelId} 總時間 ${totalTime}`);
             await update(oldUserRef, getVoiceStateUpdate('leave', null));
             await update(newUserRef, getVoiceStateUpdate('transfer', newChannelId));
             await addXpByVoiceDuration(oldUserRef, totalTime, oldState.client);
+            await sendVoiceStateEmbed(newState.guild, newState.member, 'transfer', newState.channel.name, totalTime);
         }
         
     }
@@ -145,6 +154,43 @@ const setMessageChannel = async (guildId, channelId, client) => {
     } catch (error) {
         console.error('發送訊息時發生錯誤:', error);
     }
+};
+
+const sendVoiceStateEmbed = async (guild, member, action, channelName, duration = null) => {
+    const guildRef = ref(db, `${db_root}/guilds/${guild.id}/settings`);
+    const snapshot = await get(guildRef);
+    const messageChannelId = snapshot.val()?.message_channel_id;
+    
+    if (!messageChannelId) return;
+    
+    const channel = await guild.channels.fetch(messageChannelId);
+    if (!channel) return;
+    
+    const embed = new EmbedBuilder()
+        .setAuthor({
+            name: member.displayName,
+            iconURL: member.user.displayAvatarURL()
+        })
+        .setTimestamp();
+    
+    switch (action) {
+        case 'enter':
+            embed.setColor('#0099ff')
+            embed.setDescription(`進入語音頻道 ${channelName}`);
+            break;
+        case 'leave':
+            embed.setColor('#ff0000')
+            embed.setDescription(`離開語音頻道 ${channelName}`)
+                .addFields({ name: '通話時長', value: `${Math.floor(duration / 1000 / 60)} 分鐘` });
+            break;
+        case 'transfer':
+            embed.setColor('#00ff00')
+            embed.setDescription(`轉移到語音頻道 ${channelName}`)
+                .addFields({ name: '通話時長', value: `${Math.floor(duration / 1000 / 60)} 分鐘` });
+            break;
+    }
+    
+    await channel.send({ embeds: [embed] });
 };
 
 module.exports = { updateGuild, updateVoiceState, setMessageChannel };

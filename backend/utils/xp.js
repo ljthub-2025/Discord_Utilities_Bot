@@ -133,8 +133,8 @@ const addXpByVoiceDuration = async (userRef, duration, client) => {
 
 const addXpByMessage = async (message, client) => {
     const userRef = ref(db, `${db_root}/guilds/${message.guild.id}/users/${message.author.id}`);
-    const userData = (await get(userRef)).val();
-    const currentXP = userData.xp || 0;
+    const userData = (await get(userRef)).val() || {};
+    const currentXP = userData?.xp || 0;
     const addXP = Math.floor(message.content.length / 10);
     await update(userRef, {
         xp: currentXP + addXP,
