@@ -13,6 +13,8 @@ fi
 # Install dependencies
 yarn install
 
+node deploy-commands.js
+
 # Stop and delete existing PM2 process if it exists
 pm2 stop discord-bot 2>/dev/null || true
 pm2 delete discord-bot 2>/dev/null || true
