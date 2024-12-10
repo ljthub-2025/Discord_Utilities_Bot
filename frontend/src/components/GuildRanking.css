@@ -1,0 +1,93 @@
+.guild-ranking {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #36393f;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.guild-ranking h2 {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.ranking-list {
+  background: #2f3136;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 20px;
+}
+
+.ranking-item {
+  display: flex;
+  padding: 12px;
+  border-radius: 4px;
+  border: none;
+  margin-bottom: 4px;
+  background: #36393f;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.ranking-item:hover {
+  background-color: #32353b;
+  transform: none;
+}
+
+.rank {
+  width: 50px;
+  font-weight: bold;
+  color: #b9bbbe;
+}
+
+/* 前三名特殊樣式 */
+.ranking-item:nth-child(1) .rank {
+  color: #ffd700;  /* 金色 */
+  font-size: 1.2em;
+}
+
+.ranking-item:nth-child(2) .rank {
+  color: #c0c0c0;  /* 銀色 */
+  font-size: 1.1em;
+}
+
+.ranking-item:nth-child(3) .rank {
+  color: #cd7f32;  /* 銅色 */
+  font-size: 1.1em;
+}
+
+.name {
+  flex: 1;
+  margin: 0 20px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.level {
+  width: 100px;
+  background: #2f3136;
+  padding: 5px 10px;
+  border-radius: 15px;
+  text-align: center;
+  font-weight: 500;
+  color: #b9bbbe;
+}
+
+.exp {
+  width: 150px;
+  text-align: right;
+  color: #b9bbbe;
+  font-size: 0.9em;
+}
+
+/* 新增頭像樣式 */
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 12px;
+  background: #2f3136;
+}

@@ -48,10 +48,12 @@ const updateGuild = async (guild) => {
         updates.channels[channelId] = channelData;
     });
     
-    Object.entries(users).forEach(([userId, userData]) => {
+    await Promise.all(Object.entries(users).map(async ([userId, userData]) => {
+        const avatar = await fetchUserAvatar(guild.client, userId);
         const existingUser = existingData.users?.[userId] || {};
         updates.users[userId] = {
             ...userData,
+            avatar: avatar,
             voice_state: existingUser.voice_state || null,
             voice_start_time: existingUser.voice_start_time || null,
             voice_duration: existingUser.voice_duration || 0,
@@ -59,12 +61,17 @@ const updateGuild = async (guild) => {
             xp: existingUser.xp || 0,
             level: existingUser.level || 0
         };
-    });
+    }));
 
     const settings = existingData.settings || {};
     updates.settings = settings;
     
     await update(guildRef, updates);
+};
+
+const fetchUserAvatar = async (client, userId) => {
+    const user = await client.users.fetch(userId);
+    return user.displayAvatarURL();
 };
 
 const getTotalTime = async (userRef) => {
